@@ -37,6 +37,17 @@ dependencies:
   carousel_slider: ^5.0.0
   anim_search_bar: ^2.0.3
   salomon_bottom_bar: ^3.3.2
+  eva_icons_flutter: ^3.1.0
+  dio: ^5.8.0+1
+  flutter_bloc: ^9.0.0
+  bloc: ^9.0.0
+  font_awesome_flutter: ^10.8.0
+  shimmer: ^3.0.0
+  url_launcher: ^6.3.1
+  animate_do: ^4.1.1
+  google_maps_flutter: ^2.10.1
+  shared_preferences: ^2.5.2
+  quickalert: ^1.1.0
 
 
   # The following adds the Cupertino Icons font to your application.

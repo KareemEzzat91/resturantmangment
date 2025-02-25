@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:resturantmangment/screens/home_screen/home_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:resturantmangment/helpers/api_helper/api_helper.dart';
+import 'package:resturantmangment/screens/main_screen/main_screen.dart';
+
+import 'helpers/cubit_helper/api_cubit.dart';
 
 void main() {
+  ApiHelper.init();
   runApp(const MyApp());
 }
 
@@ -10,8 +15,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  const MaterialApp(
-      home: HomeScreen(),
+    return  BlocProvider(
+      create: (BuildContext context) {
+        return ApiCubit();
+      },
+      child: const MaterialApp(
+        home: MainScreen(),
+        debugShowCheckedModeBanner: false,
+      ),
     );
   }
 }
