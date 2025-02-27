@@ -15,9 +15,7 @@ class TablesModel {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['tableNumber'] = this.tableNumber;
-    data['capacity'] = this.capacity;
+     data['capacity'] = this.capacity;
     data['branchId'] = this.branchId;
     return data;
   }

@@ -3,13 +3,17 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:resturantmangment/screens/Registration/login_screen/login_screen.dart';
 import 'package:resturantmangment/screens/reservation_screen/reservation_screen.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../about_screen/about_screen.dart';
+import '../brancadmin_screen/branchadmin_screen.dart';
 import '../chefs_screen/chiefs_screen.dart';
  import '../home_screen/home_screen.dart';
 import '../likes_screen/likes_screen.dart';
 import '../notifications_screen/notifications_screen.dart';
+import '../payment_screen/payment_screen.dart';
 import '../profile_screen/profile_screen.dart';
+import '../restaurantadmin_screen/restaurantadmin_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -25,9 +29,36 @@ class _MainScreenState extends State<MainScreen> {
     const LikesScreen(),
     const ProfileScreen(), // Change this to a ProfileScreen later
   ];
+  late final pref ;
+    String firstName ="Kareem ";
+    String lastName ="Ezzat" ;
+    String email = "kareemezzat@gmail.com";
+  int role =2;
+
+  Future  <void> getUserInfo()async{
+   final pref = await SharedPreferences.getInstance();
+   firstName= ( pref.getString("firstName"))!;
+   lastName= ( pref.getString("lastName"))!;
+   email= ( pref.getString("email"))!;
+   role = pref.getInt("role") ?? 2;
+
+
+  }
+
+
+  @override
+  void initState() {
+    super.initState();
+    getUserInfo();
+  }
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: buildAppBar(),
@@ -124,17 +155,17 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Drawer buildMenu() {
+  Drawer buildMenu( ) {
     return Drawer(
       child: Column(
         children: [
           UserAccountsDrawerHeader(
             accountName: Text(
-              'Kareem Ezzat',
+             " $firstName $lastName",
               style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             accountEmail: Text(
-              'kareem@example.com',
+             email,
               style: GoogleFonts.inter(fontSize: 14, color: Colors.white70),
             ),
             currentAccountPicture: const CircleAvatar(
@@ -149,7 +180,10 @@ class _MainScreenState extends State<MainScreen> {
 
           }),
 
-          _buildDrawerItem(Icons.payment, "Payments", Colors.blue, () {}),
+          _buildDrawerItem(Icons.payment, "Payments", Colors.blue, () {
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>const PaymentScreen()));
+
+          }),
           _buildDrawerItem(null, "Chefs", Colors.blueGrey, () {
             Navigator.push(context, MaterialPageRoute(builder: (context)=>const ChefsScreen()));
           },image: "assets/images/chef.png"),
@@ -160,6 +194,12 @@ class _MainScreenState extends State<MainScreen> {
           _buildDrawerItem(Icons.info, "About", Colors.blueGrey, () {
             Navigator.push(context, MaterialPageRoute(builder: (context)=>const AboutScreen()));
           }),
+          if (role==1)_buildDrawerItem(Icons.manage_accounts, "BranchAdmin Mode", Colors.amberAccent, () {
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>const BranchAdminScreen()));
+          }),
+           if(role==2)_buildDrawerItem(Icons.manage_accounts, "RestaurantAdmin Mode", Colors.amberAccent, () {
+             Navigator.push(context, MaterialPageRoute(builder: (context)=>const RestaurantAdminScreen()));
+           }),
            const Divider(thickness: 1, indent: 16, endIndent: 16),
           _buildDrawerItem(Icons.logout, "Logout", Colors.redAccent, () {
              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>const LoginScreen()), (Route<dynamic> route) => false);

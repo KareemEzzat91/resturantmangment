@@ -1,8 +1,13 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:resturantmangment/helpers/cubit_helper/api_cubit.dart';
+import 'package:resturantmangment/models/branch_model/branch_model.dart';
+import 'package:shimmer/shimmer.dart';
 
+import '../payment_screen/paymenthistory_screen.dart';
 import 'branchdetail_screen/branchdetail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,7 +25,6 @@ class _HomeScreenState extends State<HomeScreen> {
     {"image": "assets/images/Burger.jpg", "title": "Juicy Burger", "price": "\$16.36"},
     {"image": "assets/images/salad.jpg", "title": "Healthy Salad", "price": "\$12.99"},
   ];
-
   final List<Map<String, String>> foodItems = [
     {
       "image": "assets/images/Resturan.jpeg",
@@ -58,13 +62,18 @@ class _HomeScreenState extends State<HomeScreen> {
       "rating": "4.3"
     },
   ];
-
   final List<String> categories = [
     "All", "Popular", "Italian", "Asian", "Fast Food", "Desserts"
   ];
-
+  late Future<List<Branch>> fetchData;
   int selectedCategoryIndex = 0;
   TextEditingController textController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    fetchData =context.read<ApiCubit>().getAllBranches();
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -519,203 +528,403 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget buildRestaurantsList() {
-    return ListView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: foodItems.length,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemBuilder: (context, index) {
-        final item = foodItems[index];
+    return FutureBuilder<List<Branch>>(
+        future: fetchData,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return _buildShimmerEffect();
+          }
 
-        return FadeInLeft(
-          delay: Duration(milliseconds: 100 * index),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => BranchDetailScreen(
-                        rating: 4.3,
-                        menuItems: const ["KEBAB", "KOFTA", "KOSHARI"],
-                        name: item['title'] ?? "",
-                        description: item['location'] ?? "",
-                        imageUrl: item['image'] ?? "assets/images/Resturan.jpeg",
-                      )
-                  )
-              );
-            },
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 15,
-                    spreadRadius: 1,
-                    offset: const Offset(0, 5),
+          if (snapshot.hasError) {
+             return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    color: kErrorColor,
+                    size: 60,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Failed to load branches',
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<ApiCubit>().getAllBranches();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                    ),
+                    child: const Text('Retry'),
                   ),
                 ],
               ),
-              child: Row(
+            );
+          }
+
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Restaurant Image
-                  Hero(
-                    tag: item['title'] ?? "",
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        bottomLeft: Radius.circular(20),
-                      ),
-                      child: Image.asset(
-                        item['image'] ?? "assets/images/Resturan.jpeg",
-                        width: 120,
-                        height: 120,
-                        fit: BoxFit.cover,
-                      ),
+                  const Icon(
+                    Icons.store,
+                    color: kSecondaryColor,
+                    size: 80,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No branches available',
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  // Restaurant Details
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  item['title'] ?? "",
-                                  style: GoogleFonts.outfit(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                  const SizedBox(height: 8),
+                  Text(
+                    'Please try again later',
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final List<Branch> branches = snapshot.data!;
+          return ListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: branches.length,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemBuilder: (context, index) {
+              final branch = branches[index];
+
+              return FadeInLeft(
+                delay: Duration(milliseconds: 100 * index),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => BranchDetailScreen(
+                                  rating: 4.3,
+                                  branch:branch ,
+                                )));
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 15,
+                          spreadRadius: 1,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        // Branch Image
+                        Hero(
+                          tag: branch.name ?? "",
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              bottomLeft: Radius.circular(20),
+                            ),
+                            child: branch.imageUrl != null &&
+                                    branch.imageUrl!.isNotEmpty
+                                ? Image.network(
+                                    branch.imageUrl!,
+                                    width: 120,
+                                    height: 120,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.asset(
+                                        "assets/images/Resturan.jpeg",
+                                        width: 120,
+                                        height: 120,
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
+                                  )
+                                : Image.asset(
+                                    "assets/images/Resturan.jpeg",
+                                    width: 120,
+                                    height: 120,
+                                    fit: BoxFit.cover,
                                   ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        // Branch Details
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        branch.name ?? "",
+                                        style: GoogleFonts.outfit(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.green.shade100,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Row(
+                                        children: [
+                                          Icon(
+                                            Icons.star,
+                                            color: Colors.amber,
+                                            size: 16,
+                                          ),
+                                          SizedBox(width: 2),
+                                          Text(
+                                            "4.5",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.green.shade100,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(
+                                const SizedBox(height: 8),
+                                Row(
                                   children: [
                                     const Icon(
-                                      Icons.star,
-                                      color: Colors.amber,
+                                      Icons.location_on,
+                                      color: Colors.grey,
                                       size: 16,
                                     ),
-                                    const SizedBox(width: 2),
+                                    const SizedBox(width: 4),
+                                    Expanded(
+                                      child: Text(
+                                        branch.address ?? "",
+                                        style: TextStyle(
+                                          color: Colors.grey.shade600,
+                                          fontSize: 12,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.access_time,
+                                      color: Colors.grey,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 4),
                                     Text(
-                                      item['rating'] ?? "4.5",
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
+                                      "${branch.openingTime ?? '9:00 AM'} - ${branch.closingTime ?? '10:00 PM'}",
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
                                         fontSize: 12,
                                       ),
                                     ),
                                   ],
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.location_on,
-                                color: Colors.grey,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  item['location'] ?? "",
-                                  style: TextStyle(
-                                    color: Colors.grey.shade600,
-                                    fontSize: 12,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF2F2F2),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          child: Text(
+                                            "Free Delivery",
+                                            style: TextStyle(
+                                              color: Colors.grey.shade800,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF2F2F2),
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          child: Text(
+                                            "30 min",
+                                            style: TextStyle(
+                                              color: Colors.grey.shade800,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const Icon(
+                                      Icons.arrow_forward_ios,
+                                      color: Color(0xFF5C3EBC),
+                                      size: 16,
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFF2F2F2),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      "Free Delivery",
-                                      style: TextStyle(
-                                        color: Colors.grey.shade800,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFF2F2F2),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      "30 min",
-                                      style: TextStyle(
-                                        color: Colors.grey.shade800,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                item['price'] ?? "",
-                                style: const TextStyle(
-                                  color: Color(0xFF5C3EBC),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
+                ),
+              );
+            },
+          );
+        });
   }
 
+  Widget _buildShimmerEffect() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade300,
+      highlightColor: Colors.grey.shade100,
+      child: ListView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        itemCount: 5,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemBuilder: (_, index) {
+          return Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              children: [
+                // Shimmer image
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      bottomLeft: Radius.circular(20),
+                    ),
+                  ),
+                ),
+                // Shimmer details
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              width: 150,
+                              height: 16,
+                              color: Colors.white,
+                            ),
+                            Container(
+                              width: 40,
+                              height: 16,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          width: double.infinity,
+                          height: 12,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          width: 100,
+                          height: 12,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              width: 100,
+                              height: 14,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            Container(
+                              width: 20,
+                              height: 14,
+                              color: Colors.white,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
 
   Widget buildCustomDrawer() {
     return Drawer(

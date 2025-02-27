@@ -33,6 +33,11 @@ class ApiHelper {
     await _addAuthorizationHeader(); // تأكد من إضافة التوكين قبل كل طلب
     return await _dio!.get(path, queryParameters: queryParameters);
   }
+  /// 📌 **GET Request**
+  static Future<Response> patchData({required String path, Map<String, dynamic>? queryParameters}) async {
+    await _addAuthorizationHeader(); // تأكد من إضافة التوكين قبل كل طلب
+    return await _dio!.patch(path, queryParameters: queryParameters);
+  }
 
   /// 📌 **POST Request**
   static Future<Response?> postData({required String path, Map<String, dynamic>? queryParameters, Map<String, dynamic>? body}) async {

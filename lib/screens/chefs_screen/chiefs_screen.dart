@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:resturantmangment/helpers/cubit_helper/api_cubit.dart';
@@ -12,11 +13,21 @@ class ChefsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Our Chefs"),
+        title: const Text(
+          "Our Chefs",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
-        backgroundColor: Color(0xff32B768),
+        backgroundColor: const Color(0xff32B768),
         elevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
+          ),
+        ),
       ),
+
       body: FutureBuilder<List<Chef>?>(
         future: context.read<ApiCubit>().getChefs(),
         builder: (context, snapshot) {
@@ -126,12 +137,29 @@ class ChefCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            child: Image.network(
-              chef.imageUrl ?? "https://via.placeholder.com/150",
+            child: CachedNetworkImage(
               height: 130,
               width: double.infinity,
               fit: BoxFit.cover,
-            ),
+              imageUrl:chef.imageUrl??"https://th.bing.com/th/id/OIP.EeYVQmrl6Ab_uKyWLFHgYgHaEK?rs=1&pid=ImgDetMain" ,
+              progressIndicatorBuilder: (context, url, downloadProgress) =>
+                  SizedBox(
+                width: 200.0,
+                height: 100.0,
+                child: Shimmer.fromColors(
+                  baseColor: Colors.black12,
+                  highlightColor: Colors.yellow,
+                  child: const Text(
+                    'Loading',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 40.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              errorWidget: (context, url, error) => const Icon(Icons.error),             ),
           ),
           const SizedBox(height: 8),
           Text(

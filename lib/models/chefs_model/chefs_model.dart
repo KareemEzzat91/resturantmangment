@@ -7,7 +7,7 @@ class Chef {
   int? restaurantId;
 
   Chef(
-      {required this.id,
+      { this.id,
         required this.name,
         required this.description,
         required this.jobTitle,
@@ -24,9 +24,8 @@ class Chef {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['name'] = this.name;
+    final Map<String, dynamic> data = Map<String, dynamic>();
+     data['name'] = this.name;
     data['description'] = this.description;
     data['jobTitle'] = this.jobTitle;
     data['imageUrl'] = this.imageUrl;

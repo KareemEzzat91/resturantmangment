@@ -7,21 +7,26 @@ import 'helpers/cubit_helper/api_cubit.dart';
 
 void main() {
   ApiHelper.init();
-  runApp(const MyApp());
+  runApp( const MyApp());
 }
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+    const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+
     return  BlocProvider(
       create: (BuildContext context) {
         return ApiCubit();
       },
-      child: const MaterialApp(
-        home: MainScreen(),
+      child: MaterialApp(
+        home: const MainScreen(),
         debugShowCheckedModeBanner: false,
+        navigatorKey: navigatorKey,
+
       ),
     );
   }

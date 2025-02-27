@@ -384,7 +384,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
               child: Stack(
                 children: [
                   Image.network(
-                    "https://th.bing.com/th/id/OIP.PBTb6VPZw0t51s5qdLpk2QHaE6?w=800&h=531&rs=1&pid=ImgDetMain",
+                   item.imageUrl?? "https://th.bing.com/th/id/OIP.PBTb6VPZw0t51s5qdLpk2QHaE6?w=800&h=531&rs=1&pid=ImgDetMain",
                     height: 180,
                     width: double.infinity,
                     fit: BoxFit.cover,

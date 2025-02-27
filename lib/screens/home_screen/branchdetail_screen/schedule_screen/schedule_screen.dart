@@ -1,109 +1,131 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:resturantmangment/models/meal_schedules/meal_schedulesmodel.dart';
+import 'package:resturantmangment/screens/home_screen/branchdetail_screen/tables_screen/tables_screen.dart';
 import '../../../../helpers/cubit_helper/api_cubit.dart';
 
 class ScheduleScreen extends StatefulWidget {
   final int branchId;
+  final bool isBooking;
+  final String? date;
 
-  const ScheduleScreen({super.key, required this.branchId});
+  const ScheduleScreen({
+    super.key,
+    required this.branchId,
+    required this.isBooking,
+    this.date
+  });
 
   @override
   State<ScheduleScreen> createState() => _ScheduleScreenState();
 }
 
 class _ScheduleScreenState extends State<ScheduleScreen> {
-  late Future<List<BranchSchedule>?> _scheduleFuture;
+  late Future<dynamic> _scheduleFuture;
   int _selectedDayIndex = DateTime.now().weekday % 7; // Today's index, using Saturday as 0
 
-  final List<String> weekDays = [
+  // Constants
+  static const List<String> weekDays = [
     "Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"
   ];
 
   // Color scheme
-  final Color primaryColor = const Color(0xff32B768);
-  final Color secondaryColor = const Color(0xffE6F7EC);
-  final Color accentColor = const Color(0xff065F46);
+  static const Color primaryColor = Color(0xff32B768);
+  static const Color secondaryColor = Color(0xffE6F7EC);
+  static const Color accentColor = Color(0xff065F46);
 
   @override
   void initState() {
     super.initState();
-    _scheduleFuture = _fetchSchedule();
+    _initScheduleFuture();
   }
 
-  Future<List<BranchSchedule>?> _fetchSchedule() async {
+  void _initScheduleFuture() {
+    _scheduleFuture = widget.isBooking && widget.date != null
+        ? _fetchDaySchedule()
+        : _fetchWeeklySchedule();
+  }
+
+  Future<List<BranchSchedule>?> _fetchWeeklySchedule() async {
     return await context.read<ApiCubit>().getSchedule(widget.branchId);
+  }
+
+  Future<BranchSchedule> _fetchDaySchedule() async {
+    return await context.read<ApiCubit>().getSchedulePerDay(widget.branchId, widget.date!);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Weekly Meal Schedule",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: primaryColor,
-        elevation: 0,
-        centerTitle: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
-        ),
-      ),
-      body: FutureBuilder<List<BranchSchedule>?>(
+      appBar: _buildAppBar(),
+      body: FutureBuilder<dynamic>(
         future: _scheduleFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(color: primaryColor),
-                  const SizedBox(height: 16),
-                  Text(
-                    "Loading schedule...",
-                    style: TextStyle(color: accentColor, fontSize: 16),
-                  )
-                ],
-              ),
-            );
+            return _buildLoadingView();
           } else if (snapshot.hasError || snapshot.data == null) {
             return _buildErrorView();
           }
 
-          final scheduleList = snapshot.data!;
-          if (scheduleList.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.event_busy, size: 64, color: Colors.grey.shade400),
-                  const SizedBox(height: 16),
-                  const Text(
-                    "No schedule available for this branch",
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
-                  ),
-                ],
-              ),
-            );
+          if (widget.isBooking && widget.date != null) {
+            return _buildDaySchedule(snapshot.data as BranchSchedule);
+          } else {
+            final scheduleList = snapshot.data as List<BranchSchedule>;
+            if (scheduleList.isEmpty) {
+              return _buildEmptyScheduleView();
+            }
+            return _buildWeeklyScheduleView(scheduleList);
           }
-
-          return Column(
-            children: [
-              _buildDaySelector(scheduleList),
-              Expanded(
-                child: _selectedDayIndex < scheduleList.length
-                    ? _buildDaySchedule(scheduleList[_selectedDayIndex])
-                    : Center(
-                  child: Text(
-                    "No schedule for ${weekDays[_selectedDayIndex]}",
-                    style: const TextStyle(fontSize: 18, color: Colors.grey),
-                  ),
-                ),
-              ),
-            ],
-          );
         },
+      ),
+    );
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: Text(
+        widget.isBooking ? "Choose Your Meal Schedule" : "Weekly Meal Schedule",
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      backgroundColor: primaryColor,
+      elevation: 0,
+      centerTitle: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+      ),
+    );
+  }
+
+  Widget _buildLoadingView() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(color: primaryColor),
+          SizedBox(height: 16),
+          Text(
+            "Loading schedule...",
+            style: TextStyle(color: accentColor, fontSize: 16),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyScheduleView() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.event_busy, size: 64, color: Colors.grey.shade400),
+          const SizedBox(height: 16),
+          const Text(
+            "No schedule available for this branch",
+            style: TextStyle(fontSize: 18, color: Colors.grey),
+          ),
+        ],
       ),
     );
   }
@@ -123,7 +145,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           ElevatedButton.icon(
             onPressed: () {
               setState(() {
-                _scheduleFuture = _fetchSchedule();
+                _initScheduleFuture();
               });
             },
             icon: const Icon(Icons.refresh),
@@ -138,6 +160,24 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildWeeklyScheduleView(List<BranchSchedule> scheduleList) {
+    return Column(
+      children: [
+        _buildDaySelector(scheduleList),
+        Expanded(
+          child: _selectedDayIndex < scheduleList.length
+              ? _buildDaySchedule(scheduleList[_selectedDayIndex])
+              : Center(
+            child: Text(
+              "No schedule for ${weekDays[_selectedDayIndex]}",
+              style: const TextStyle(fontSize: 18, color: Colors.grey),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -159,7 +199,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 _selectedDayIndex = index;
               });
             },
-            child: Container(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
               width: 80,
               margin: const EdgeInsets.symmetric(horizontal: 6),
               decoration: BoxDecoration(
@@ -193,7 +234,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     Container(
                       width: 8,
                       height: 8,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: primaryColor,
                         shape: BoxShape.circle,
                       ),
@@ -211,12 +252,29 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     final sortedMeals = List<MealSchedules>.from(schedule.mealSchedules ?? [])
       ..sort((a, b) => a.mealType?.compareTo(b.mealType ?? 0) ?? 0);
 
+    if (sortedMeals.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.no_meals, size: 64, color: Colors.grey.shade400),
+            const SizedBox(height: 16),
+            Text(
+              "No meals scheduled for ${widget.isBooking ? "this date" : weekDays[_selectedDayIndex]}",
+              style: const TextStyle(fontSize: 18, color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: sortedMeals.length,
       itemBuilder: (context, index) {
         final meal = sortedMeals[index];
-        return _buildMealCard(meal, index);
+        return _buildMealCard(meal, index,);
       },
     );
   }
@@ -266,6 +324,25 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     color: Colors.white,
                   ),
                 ),
+                const Spacer(),
+                if (widget.isBooking)
+                  IconButton(
+                    icon: const Icon(Icons.check_circle_outline_outlined, color: Colors.white),
+                    onPressed: () {
+                      QuickAlert.show(
+                      context: context,
+                      type: QuickAlertType.confirm,
+                      text: 'Your Meal is ${_getMealTypeName(meal.mealType)}',
+                      confirmBtnText: 'Yes',
+                      cancelBtnText: 'No',
+                      confirmBtnColor: Colors.green,
+                      onConfirmBtnTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>TablesScreen( mealSchedulesId: meal.id,branchId: widget.branchId, isBooking: true,selectedDate:widget.date ,selectedMeal: _getMealTypeName(meal.mealType),selectedMealNum:meal.mealType)));
+                      }
+                    );
+
+                    },
+                  ),
               ],
             ),
           ),
@@ -299,7 +376,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   child: Row(
                     children: [
                       Text(
-                        "${meal.mealStartTime}",
+                        meal.mealStartTime ?? "N/A",
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -314,7 +391,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         ),
                       ),
                       Text(
-                        "${meal.mealEndTime}",
+                        meal.mealEndTime ?? "N/A",
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -335,28 +412,28 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   MealColorScheme _getMealColorScheme(int? mealType) {
     switch (mealType) {
       case 0: // Breakfast
-        return MealColorScheme(
-          primary: const Color(0xFF1E88E5),
-          background: const Color(0xFFE3F2FD),
-          shadow: const Color(0xFF1E88E5).withOpacity(0.2),
+        return const MealColorScheme(
+          primary: Color(0xFF1E88E5),
+          background: Color(0xFFE3F2FD),
+          shadow: Color(0x331E88E5),
         );
       case 1: // Lunch
-        return MealColorScheme(
-          primary: const Color(0xFF43A047),
-          background: const Color(0xFFE8F5E9),
-          shadow: const Color(0xFF43A047).withOpacity(0.2),
+        return const MealColorScheme(
+          primary: Color(0xFF43A047),
+          background: Color(0xFFE8F5E9),
+          shadow: Color(0x3343A047),
         );
       case 2: // Dinner
-        return MealColorScheme(
-          primary: const Color(0xFF8E24AA),
-          background: const Color(0xFFF3E5F5),
-          shadow: const Color(0xFF8E24AA).withOpacity(0.2),
+        return const MealColorScheme(
+          primary: Color(0xFF8E24AA),
+          background: Color(0xFFF3E5F5),
+          shadow: Color(0x338E24AA),
         );
       default:
-        return MealColorScheme(
+        return const MealColorScheme(
           primary: primaryColor,
           background: secondaryColor,
-          shadow: primaryColor.withOpacity(0.2),
+          shadow: Color(0x3332B768),
         );
     }
   }
@@ -394,7 +471,7 @@ class MealColorScheme {
   final Color background;
   final Color shadow;
 
-  MealColorScheme({
+  const MealColorScheme({
     required this.primary,
     required this.background,
     required this.shadow,

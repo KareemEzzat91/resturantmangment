@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:quickalert/quickalert.dart';
 import 'package:resturantmangment/helpers/cubit_helper/api_cubit.dart';
 import '../../models/Reservation_model/Reservation_model.dart';
 
-class ReservationScreen extends StatelessWidget {
+class ReservationScreen extends StatefulWidget {
   const ReservationScreen({super.key});
 
+  @override
+  State<ReservationScreen> createState() => _ReservationScreenState();
+}
+
+class _ReservationScreenState extends State<ReservationScreen> {
   String getMealType(int ?mealType) {
     switch (mealType) {
       case 1:
@@ -23,10 +29,21 @@ class ReservationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("My Reservations"),
+        title: const Text(
+          "My Reservations",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         backgroundColor: const Color(0xff32B768),
+        elevation: 0,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
+          ),
+        ),
       ),
+
       body: FutureBuilder<List<Reservation>>(
         future: context.read<ApiCubit>().getReservations(),
         builder: (context, snapshot) {
@@ -60,10 +77,30 @@ class ReservationScreen extends StatelessWidget {
                           Text("Reservation #${reservation.id}",
                               style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold)),
-                          Icon(
-                            reservation.status == 1 ? Icons.check_circle : Icons.cancel,
-                            color: reservation.status == 1 ? Colors.green : Colors.red,
-                            size: 28,
+                          InkWell(
+                            onTap:(){
+                              reservation.status == 0 ?QuickAlert.show(
+                                context: context,
+                                type: QuickAlertType.confirm,
+                                text: 'Do you want to Cancel This Reservation ',
+                                confirmBtnText: 'Yes',
+                                cancelBtnText: 'No',
+                                confirmBtnColor: Colors.green,
+                                onConfirmBtnTap: () async{
+                                  await context.read<ApiCubit>().cancelReservation(reservation.id!);
+
+                                  setState(() {
+
+                                  });
+                                  Navigator.pop(context);
+                                }
+                              ):null;
+                            } ,
+                            child: Icon(
+                              reservation.status == 1 ? Icons.check_circle : Icons.cancel,
+                              color: reservation.status == 1 ? Colors.green : Colors.red,
+                              size: 28,
+                            ),
                           ),
                         ],
                       ),
