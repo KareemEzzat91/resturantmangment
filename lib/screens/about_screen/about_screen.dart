@@ -14,23 +14,7 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-/*
-      appBar: AppBar(
-        title: const Text(
-          "About Us",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        backgroundColor: const Color(0xff32B768),
-        elevation: 0,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(20),
-            bottomRight: Radius.circular(20),
-          ),
-        ),
-      ),
-*/
+
       body: FutureBuilder<Resturant>(
         future: context.read<ApiCubit>().getResturant(),
         builder: (context, snapshot) {
@@ -602,14 +586,14 @@ class AboutScreen extends StatelessWidget {
     return FadeInRight(
       duration: const Duration(milliseconds: 600),
       child: SizedBox(
-        height: 140,
+        height: 180,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: 5,
           padding: const EdgeInsets.symmetric(horizontal: 8),
           itemBuilder: (context, index) {
             return Container(
-              width: 200,
+              width: 250,
               margin: const EdgeInsets.all(8),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
