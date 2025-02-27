@@ -252,6 +252,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: GoogleFonts.poppins(
                               fontWeight: FontWeight.w600,
 
+
                             ),
                           ),
                         ),
@@ -262,46 +263,49 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     // Sign in button
                     BlocBuilder<ApiCubit, ApiState>(
-                     builder: (context, state) {
-                       if (state is LoadingState)
-                         {
-                           return const Center(child:   CircularProgressIndicator(color: Colors.green,));
-                         }
-                       if (state is ErrorState){
-                         QuickAlert.show(
-                           context: context,
-                           type: QuickAlertType.error,
-                           title: 'Oops...',
-                           text: 'Sorry, something went wrong${state.error}',
-                         );
-                       }
-                      return ElevatedButton(
-                      onPressed: () {
-                        context.read<ApiCubit>().login(
-                          context,
-                          email: emailController.text,
-                          password: passwordController.text,
+                      builder: (context, state) {
+                        if (state is LoadingState) {
+                          return const Center(
+                            child: CircularProgressIndicator(color: Colors.green),
+                          );
+                        }
+                        if (state is ErrorState) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            QuickAlert.show(
+                              context: context,
+                              type: QuickAlertType.error,
+                              title: 'Oops...',
+                              text: 'Sorry, something went wrong: ${state.error}',
+                            );
+                          });
+                        }
+                        return ElevatedButton(
+                          onPressed: () {
+                            context.read<ApiCubit>().login(
+                              context,
+                              email: emailController.text,
+                              password: passwordController.text,
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryColor,
+                            minimumSize: const Size(double.infinity, 56),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: Text(
+                            "Sign In",
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
                         );
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColor,
-                        minimumSize: const Size(double.infinity, 56),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: Text(
-                        "Sign In",
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    );
-  },
-),
+                    ),
 
                     const SizedBox(height: 20),
 

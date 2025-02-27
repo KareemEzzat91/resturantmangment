@@ -32,7 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         lastName = prefs.getString("lastName") ?? lastName;
         email = prefs.getString("email") ?? email;
         phoneNumber = prefs.getString("phoneNumber") ?? phoneNumber;
-        role = prefs.getInt("role") ?? 2;
+        role = prefs.getInt("role") ?? 0;
         _isLoading = false;
         userRole = getRole(role);
 

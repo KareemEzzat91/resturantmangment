@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:resturantmangment/helpers/cubit_helper/api_cubit.dart';
 
 import '../register_screen/register_screen.dart';
@@ -159,7 +161,24 @@ class ForgetPasswordScreen extends StatelessWidget {
 
 
                     // Sign in button
-                    ElevatedButton(
+                    BlocBuilder<ApiCubit, ApiState>(
+                    builder: (context, state) {
+                      if (state is LoadingState) {
+                        return const Center(
+                          child: CircularProgressIndicator(color: Colors.green),
+                        );
+                      }
+                      if (state is ErrorState) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          QuickAlert.show(
+                            context: context,
+                            type: QuickAlertType.error,
+                            title: 'Oops...',
+                            text: 'Sorry, something went wrong: ${state.error}',
+                          );
+                        });
+                      }
+                     return ElevatedButton(
                       onPressed: () {
                         context.read<ApiCubit>().forgetPassword(
                           context,
@@ -182,7 +201,9 @@ class ForgetPasswordScreen extends StatelessWidget {
                           color: Colors.white,
                         ),
                       ),
-                    ),
+                    );
+  },
+),
 
                     const SizedBox(height: 20),
 

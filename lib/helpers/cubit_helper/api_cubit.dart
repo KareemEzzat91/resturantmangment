@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import 'package:resturantmangment/helpers/api_helper/api_helper.dart';
 import 'package:resturantmangment/models/chefs_model/chefs_model.dart';
 import 'package:resturantmangment/models/meal_schedules/meal_schedulesmodel.dart';
@@ -83,8 +85,13 @@ class ApiCubit extends Cubit<ApiState> {
 
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) =>   LoginScreen()),
+          MaterialPageRoute(builder: (context) =>   const LoginScreen()),
               (Route<dynamic> route) => false,
+        );
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          text: 'Your Account Done Please Sign In',
         );
         emit(ErrorState("Account Done Please Sign In"));
 
@@ -110,8 +117,13 @@ class ApiCubit extends Cubit<ApiState> {
         // الانتقال إلى الصفحة الرئيسية وإزالة كل الصفحات السابقة
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) =>  const HomeScreen()),
+          MaterialPageRoute(builder: (context) =>  const LoginScreen()),
               (Route<dynamic> route) => false,
+        );
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          text: 'mail Sent To Your Email Check it  ',
         );
         emit(ErrorState(response?.data));
 
