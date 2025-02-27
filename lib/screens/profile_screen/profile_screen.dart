@@ -97,9 +97,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           children: [
             // Profile Picture
-            const CircleAvatar(
+             CircleAvatar(
               radius: 60,
-              backgroundImage: AssetImage("assets/images/MyPic.jpg"),
+              backgroundImage: AssetImage(role==1 ?"assets/images/MyPic.jpg":role==2?"assets/images/noffal.jpg":"assets/images/Coustmer.jpg"),
               backgroundColor: Colors.grey,
             ),
             const SizedBox(height: 16),

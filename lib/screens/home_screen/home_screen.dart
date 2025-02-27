@@ -86,9 +86,9 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            buildSearchBar(width),
+            buildSearchBar(width),/*
             const SizedBox(height: 16),
-            buildCategoryList(),
+            buildCategoryList(),*/
             const SizedBox(height: 16),
             buildCarouselSlider(width, height),
             const SizedBox(height: 24),

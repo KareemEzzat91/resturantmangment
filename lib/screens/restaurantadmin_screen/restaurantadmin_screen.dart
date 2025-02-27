@@ -597,8 +597,7 @@ class _RestaurantAdminScreenState extends State<RestaurantAdminScreen>
                       height: 150,
                       width: double.infinity,
                       color: Colors.grey[300],
-                      child: const Icon(Icons.broken_image,
-                          size: 64, color: Colors.grey),
+                      child: Image.network(fit: BoxFit.cover,"https://blogger.googleusercontent.com/img/a/AVvXsEjlsRXQ47IxQtu7Avdq-gEdF8pt4NsLi_NifZUCzqqwvXTWfmd91Bs6POhlqGuo9w0tNlins92M3Dqq_vg-4UKjcLCLwogKKgA-wG1jTblVl61AgOOxfNePbZD49IhAyyX3uCmIIgAzh2FDa3K41H0z-yNmZQ_Q8Mui0VNkcHLYYU_WyD-5saI_0V04tQ=w1200-h630-p-k-no-nu"),
                     ),
                   )
                 : Container(
@@ -776,7 +775,7 @@ class _RestaurantAdminScreenState extends State<RestaurantAdminScreen>
               borderRadius: BorderRadius.circular(8),
               child: chef.imageUrl != null && chef.imageUrl!.isNotEmpty
                   ? Image.network(
-                      chef.imageUrl!,
+                      chef.imageUrl??"https://www.palmbeachpost.com/gcdn/authoring/authoring-images/2023/12/19/NCOD/71976697007-ceb-fyr-roy-bjp-02.JPG?crop=5895,3316,x0,y0&width=3200&height=1801&format=pjpg&auto=webp",
                       width: 100,
                       height: 100,
                       fit: BoxFit.cover,
@@ -784,8 +783,7 @@ class _RestaurantAdminScreenState extends State<RestaurantAdminScreen>
                         width: 100,
                         height: 100,
                         color: Colors.grey[300],
-                        child: const Icon(Icons.person,
-                            size: 50, color: Colors.grey),
+                        child: Image.network(fit: BoxFit.fitHeight,"https://www.palmbeachpost.com/gcdn/authoring/authoring-images/2023/12/19/NCOD/71976697007-ceb-fyr-roy-bjp-02.JPG?crop=5895,3316,x0,y0&width=3200&height=1801&format=pjpg&auto=webp")
                       ),
                     )
                   : Container(

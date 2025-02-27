@@ -356,31 +356,34 @@ class ApiCubit extends Cubit<ApiState> {
     return [];
 
   }
-  Future <Order>  requestPayment (String id , String paymentCode )async{
+  Future <Order>  requestPayment (  String paymentCode )async{
     emit(LoadingState());
     try {
+      print("Starttttttttttttttttttttt");
       final response = await ApiHelper.postData(body:{
-        "id":id,
-        "paymentCode":paymentCode
+         "paymentCode":paymentCode
       } ,path: '/api/Payment/request');
+      print("fulllllllllllllllllll");
       if (response?.statusCode == 200) {
         final order = Order.fromJson(response?.data );
+        print("fooooooooooooooooooooooo");
         emit(SuccessState());
         return order;
       } else {
+        print ('errrrrrrrrrrrrrro');
         emit(ErrorState('Failed to  request Payment '));
       }
     } catch (e) {
+      print(":::::::::::::::::${e.toString()}");
       emit(ErrorState(e.toString()));
     }
     return Order(id: 0, amount: 0, paymentCode: "0", status: 0);
 
   }
-  Future <Order>  processPayment ({required String id, required String amount,required String paymentCode,required int paymentMethod})async{
+  Future <Order>  processPayment ({ required String amount,required String paymentCode,required int paymentMethod})async{
     emit(LoadingState());
     try {
       final response = await ApiHelper.postData(body:{
-        "id":id,
         "paymentCode":paymentCode
       } ,path: '/api/Payment/request');
       if (response?.statusCode == 200) {

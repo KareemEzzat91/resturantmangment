@@ -174,7 +174,7 @@ class PaymentOptionsSection extends StatelessWidget {
             // Request payment
             final Order order = await context
                 .read<ApiCubit>()
-                .requestPayment(idController.text, paymentCodeController.text);
+                .requestPayment( paymentCodeController.text);
 
             // Close loading dialog
             Navigator.pop(context);
@@ -204,24 +204,7 @@ class PaymentOptionsSection extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: idController,
-              decoration: const InputDecoration(
-                labelText: 'Request ID',
-                hintText: 'Enter Your Request ID',
-                prefixIcon: Icon(Icons.person_outline),
-                border: OutlineInputBorder(),
-              ),
-              textInputAction: TextInputAction.next,
-              keyboardType: TextInputType.text,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter request ID';
-                }
-                return null;
-              },
-            ),
+
             const SizedBox(height: 15),
             TextFormField(
               controller: paymentCodeController,
@@ -261,10 +244,9 @@ class PaymentOptionsSection extends StatelessWidget {
         if (_processFormKey.currentState?.validate() ?? false) {
           final apiCubit = context.read<ApiCubit>();
           final Order order = await  apiCubit.processPayment(
-            id: idController.text,
             amount: amountController.text,
             paymentCode: paymentCodeController.text,
-            paymentMethod: (apiCubit.state as ApiSelectedPaymentMethod).selectedMethodIndex,
+            paymentMethod: 1,
           );
 
           apiCubit.stream.listen((apiState) {
@@ -302,21 +284,7 @@ class PaymentOptionsSection extends StatelessWidget {
                   color: Colors.grey[700],
                 ),
               ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: idController,
-                decoration: const InputDecoration(
-                  labelText: 'Payment ID',
-                  prefixIcon: Icon(Icons.qr_code_2),
-                  border: OutlineInputBorder(),
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                ),
-                keyboardType: TextInputType.text,
-                textInputAction: TextInputAction.next,
-                validator: (value) =>
-                    value!.isEmpty ? 'Payment ID is required' : null,
-              ),
+
               const SizedBox(height: 15),
               TextFormField(
                 controller: amountController,
@@ -823,11 +791,6 @@ class PaymentOptionsSection extends StatelessWidget {
                 style: const TextStyle(
                     fontWeight: FontWeight.bold, color: kPrimaryColor)),
             const SizedBox(height: 5),
-            Text("Order Status: ${order.status == 0 ? "Waiting" : "Reversed"}",
-                style: TextStyle(
-                  color: order.status == 0 ? Colors.orange : Colors.red,
-                  fontWeight: FontWeight.bold,
-                )),
           ],
         ));
   }

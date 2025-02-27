@@ -88,16 +88,22 @@ class BranchAdminCubit extends ApiCubit {
   Future<void> updateMenuItem(MenuModel menuItem, int menuItemId) async {
     emit(LoadingState());
     try {
+      print("Starttttttttt");
       final response = await ApiHelper.putData(
         path: '/api/Menu/update/$menuItemId',
         body: menuItem.toJson(),
       );
+      print("Continueeeeeeee");
       if (response.statusCode == 200) {
         await fetchMenuItems(menuItem.branchId??1);
+        print("Done");
+
       } else {
         emit(ErrorState('Failed to update menu item'));
+        print('Failed to update menu item');
       }
     } catch (e) {
+      print(":::::::::::::::::::::::::${e.toString()}");
       emit(ErrorState(e.toString()));
     }
   }

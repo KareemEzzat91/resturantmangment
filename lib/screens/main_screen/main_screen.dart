@@ -26,21 +26,24 @@ class _MainScreenState extends State<MainScreen> {
   int currentIndex = 0; // Keep track of selected tab
   final List<Widget> screens = [
     const HomeScreen(),
+/*
     const LikesScreen(),
+*/
+  const AboutScreen(),
     const ProfileScreen(), // Change this to a ProfileScreen later
   ];
   late final pref ;
     String firstName ="Kareem ";
     String lastName ="Ezzat" ;
     String email = "kareemezzat@gmail.com";
-  int role =2;
+  int role =0;
 
   Future  <void> getUserInfo()async{
    final pref = await SharedPreferences.getInstance();
    firstName= ( pref.getString("firstName"))!;
    lastName= ( pref.getString("lastName"))!;
    email= ( pref.getString("email"))!;
-   role = pref.getInt("role") ?? 2;
+   role = pref.getInt("role") ?? 0;
 
 
   }
@@ -92,7 +95,7 @@ class _MainScreenState extends State<MainScreen> {
           padding: const EdgeInsets.only(right: 10),
           child: CircleAvatar(
             radius: 22,
-            backgroundImage: const AssetImage("assets/images/MyPic.jpg"),
+            backgroundImage:  AssetImage(role==1 ?"assets/images/MyPic.jpg":role==2?"assets/images/noffal.jpg":"assets/images/Coustmer.jpg"),
             backgroundColor: Colors.grey.shade200,
           ),
         ),
@@ -132,13 +135,17 @@ class _MainScreenState extends State<MainScreen> {
               ),
               selectedColor: Colors.teal,
             ),
+            /*
+          _buildDrawerItem(Icons.info, "About", Colors.blueGrey, () {
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>const AboutScreen()));
+          }),*/
             SalomonBottomBarItem(
-              icon: const Icon(Icons.favorite_rounded),
+              icon: const Icon(Icons.restaurant),
               title: const Text(
-                "Likes",
+                "About",
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
-              selectedColor: Colors.pink,
+              selectedColor: Colors.blueGrey,
             ),
             SalomonBottomBarItem(
               icon: const Icon(Icons.person_rounded),
@@ -160,6 +167,7 @@ class _MainScreenState extends State<MainScreen> {
       child: Column(
         children: [
           UserAccountsDrawerHeader(
+            
             accountName: Text(
              " $firstName $lastName",
               style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold),
@@ -168,10 +176,11 @@ class _MainScreenState extends State<MainScreen> {
              email,
               style: GoogleFonts.inter(fontSize: 14, color: Colors.white70),
             ),
-            currentAccountPicture: const CircleAvatar(
-              backgroundImage: AssetImage("assets/images/MyPic.jpg"),
+            currentAccountPicture:  CircleAvatar(
+              backgroundImage: AssetImage(role==1 ?"assets/images/MyPic.jpg":role==2?"assets/images/noffal.jpg":"assets/images/Coustmer.jpg"),
             ),
             decoration: const BoxDecoration(
+              image: DecorationImage(image: AssetImage("assets/images/Resturant2.jpeg"),fit: BoxFit.cover,colorFilter: ColorFilter.mode(Colors.black, BlendMode.softLight)),
               color: Color(0xff32B768), // Stylish green
             ),
           ),
@@ -190,9 +199,17 @@ class _MainScreenState extends State<MainScreen> {
           _buildDrawerItem(Icons.notifications, "Notifications", Colors.orangeAccent, () {
             Navigator.push(context, MaterialPageRoute(builder: (context)=>const NotificationsScreen()));
           }),
-
-          _buildDrawerItem(Icons.info, "About", Colors.blueGrey, () {
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>const AboutScreen()));
+/*            SalomonBottomBarItem(
+              icon: const Icon(Icons.favorite_rounded),
+              title: const Text(
+                "Likes",
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              ),
+              selectedColor: Colors.pink,
+            ),
+*/
+          _buildDrawerItem(Icons.favorite_rounded, "Likes", Colors.pink, () {
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>const LikesScreen()));
           }),
           if (role==1)_buildDrawerItem(Icons.manage_accounts, "BranchAdmin Mode", Colors.amberAccent, () {
             Navigator.push(context, MaterialPageRoute(builder: (context)=>const BranchAdminScreen()));

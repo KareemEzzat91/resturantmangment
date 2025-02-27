@@ -1,6 +1,6 @@
 class Order {
   final int id;
-  final double amount;
+  final num amount;
   String? dateOfPayment;
   final String paymentCode;
   final int status;

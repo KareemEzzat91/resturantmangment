@@ -19,7 +19,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
   String searchKeyword = '';
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
-  List<String> categories = ['All', 'Appetizers', 'Main Course', 'Desserts', 'Beverages'];
+  List<String> categories = [  'Appetizers', 'Main Course', 'Desserts', 'Beverages'];
   final Color primaryColor = const Color(0xff32B768);
   final Color secondaryColor = const Color(0xffE6F7EC);
   final Color darkTextColor = const Color(0xff1F2937);
@@ -202,7 +202,7 @@ class _MenuScreenState extends State<MenuScreen> with SingleTickerProviderStateM
                   }).toList(),
                   onTap: (index) {
                     setState(() {
-                      selectedCategory = index == 0 ? null : index;
+                      selectedCategory =  index;/*index == 0 ? null :*/
                     });
                   },
                 ),
