@@ -1,11 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Centralized HTTP client used by the application.
+///
+/// The helper configures Dio once and automatically attaches the persisted
+/// authentication token to authenticated requests.
 class ApiHelper {
   static Dio? _dio;
+
   ApiHelper._();
 
-  /// ⏳ **تهيئة Dio مرة واحدة فقط**
+  /// Initialize the Dio client once during application startup.
   static void init() {
     _dio = Dio(
       BaseOptions(
@@ -19,41 +24,61 @@ class ApiHelper {
     );
   }
 
-  /// ✅ **إضافة التوكين تلقائيًا إلى جميع الطلبات**
+  /// Add the stored bearer token to the current Dio instance.
   static Future<void> _addAuthorizationHeader() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("token");
+
     if (token != null && token.isNotEmpty) {
       _dio!.options.headers["Authorization"] = "Bearer $token";
     }
   }
 
-  /// 📌 **GET Request**
-  static Future<Response> getData({required String path, Map<String, dynamic>? queryParameters}) async {
-    await _addAuthorizationHeader(); // تأكد من إضافة التوكين قبل كل طلب
-    return await _dio!.get(path, queryParameters: queryParameters);
-  }
-  /// 📌 **GET Request**
-  static Future<Response> patchData({required String path, Map<String, dynamic>? queryParameters}) async {
-    await _addAuthorizationHeader(); // تأكد من إضافة التوكين قبل كل طلب
-    return await _dio!.patch(path, queryParameters: queryParameters);
+  /// Send a GET request.
+  static Future<Response> getData({
+    required String path,
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    await _addAuthorizationHeader();
+    return _dio!.get(path, queryParameters: queryParameters);
   }
 
-  /// 📌 **POST Request**
-  static Future<Response?> postData({required String path, Map<String, dynamic>? queryParameters, Map<String, dynamic>? body}) async {
+  /// Send a PATCH request.
+  static Future<Response> patchData({
+    required String path,
+    Map<String, dynamic>? queryParameters,
+  }) async {
     await _addAuthorizationHeader();
-    return await _dio?.post(path, data: body, queryParameters: queryParameters);
+    return _dio!.patch(path, queryParameters: queryParameters);
   }
 
-  /// 📌 **PUT Request**
-  static Future<Response> putData({required String path, Map<String, dynamic>? queryParameters, Map<String, dynamic>? body}) async {
+  /// Send a POST request.
+  static Future<Response?> postData({
+    required String path,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? body,
+  }) async {
     await _addAuthorizationHeader();
-    return await _dio!.put(path, data: body, queryParameters: queryParameters);
+    return _dio?.post(path, data: body, queryParameters: queryParameters);
   }
 
-  /// 📌 **DELETE Request**
-  static Future<Response> deleteData({required String path, Map<String, dynamic>? queryParameters, Map<String, dynamic>? body}) async {
+  /// Send a PUT request.
+  static Future<Response> putData({
+    required String path,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? body,
+  }) async {
     await _addAuthorizationHeader();
-    return await _dio!.delete(path, data: body, queryParameters: queryParameters);
+    return _dio!.put(path, data: body, queryParameters: queryParameters);
+  }
+
+  /// Send a DELETE request.
+  static Future<Response> deleteData({
+    required String path,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? body,
+  }) async {
+    await _addAuthorizationHeader();
+    return _dio!.delete(path, data: body, queryParameters: queryParameters);
   }
 }
