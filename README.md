@@ -204,7 +204,7 @@ The application uses **Cubit/BLoC** for state management and **Dio** as the HTTP
 | **Animate Do** | UI animations |
 | **Intl** | Date and formatting utilities |
 
-The package manifest currently targets **Dart SDK `^3.5.3`** and includes the dependencies above. fileciteturn17file0
+The package manifest currently targets **Dart SDK `^3.5.3`** and includes the dependencies above.
 
 ---
 
@@ -220,7 +220,7 @@ The authentication layer supports:
 - Basic profile persistence
 - Automatic `Authorization: Bearer <token>` headers for API requests
 
-The API helper centralizes authenticated `GET`, `POST`, `PUT`, `PATCH`, and `DELETE` operations through Dio. fileciteturn24file0 fileciteturn25file0
+The API helper centralizes authenticated `GET`, `POST`, `PUT`, `PATCH`, and `DELETE` operations through Dio.
 
 ---
 
@@ -245,7 +245,7 @@ GET    /api/BranchSchedule/all/{branchId}
 GET    /api/BranchSchedule/schedule-day/{branchId}/{date}
 ```
 
-The repository implements these backend calls through a reusable `ApiHelper` and `ApiCubit` layer. fileciteturn24file0
+The repository implements these backend calls through a reusable `ApiHelper` and `ApiCubit` layer.
 
 ---
 
@@ -260,7 +260,7 @@ The main application shell includes:
 - ✨ Animated screen transitions
 - 📌 Role-aware profile imagery and account information
 
-The main shell also persists account information such as first name, last name, email, and role using `SharedPreferences`. fileciteturn31file0
+The main shell also persists account information such as first name, last name, email, and role using `SharedPreferences`.
 
 ---
 
@@ -291,15 +291,15 @@ flutter run
 flutter analyze
 ```
 
-The project enables the recommended Flutter lint rules through `flutter_lints`. fileciteturn30file0
+The project enables the recommended Flutter lint rules through `flutter_lints`.
 
 ---
 
 ## 🧪 Development Notes
 
-The codebase contains dedicated model classes for reservations, branches, chefs, meal schedules, menus, notifications, orders, restaurants, and tables. fileciteturn22file0
+The codebase contains dedicated model classes for reservations, branches, chefs, meal schedules, menus, notifications, orders, restaurants, and tables.
 
-The screen layer is organized by business area, including authentication, home/discovery, reservations, payments, notifications, profile, chefs, branch administration, and restaurant administration. fileciteturn19file0
+The screen layer is organized by business area, including authentication, home/discovery, reservations, payments, notifications, profile, chefs, branch administration, and restaurant administration.
 
 ---
 
