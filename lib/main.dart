@@ -6,27 +6,30 @@ import 'package:resturantmangment/screens/main_screen/main_screen.dart';
 import 'helpers/cubit_helper/api_cubit.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   ApiHelper.init();
-  runApp( const MyApp());
+  runApp(const MyApp());
 }
+
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-
 class MyApp extends StatelessWidget {
-    const MyApp({super.key});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-
-    return  BlocProvider(
-      create: (BuildContext context) {
-        return ApiCubit();
-      },
+    return BlocProvider(
+      create: (_) => ApiCubit(),
       child: MaterialApp(
-        home: const MainScreen(),
+        title: 'Restaurant Management',
         debugShowCheckedModeBanner: false,
         navigatorKey: navigatorKey,
-
+        theme: ThemeData(
+          useMaterial3: true,
+          colorSchemeSeed: Colors.deepPurple,
+          scaffoldBackgroundColor: Colors.white,
+        ),
+        home: const MainScreen(),
       ),
     );
   }
